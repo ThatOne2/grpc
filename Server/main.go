@@ -1,11 +1,12 @@
 package main
-//Client can be run with "go run main.go" in the client dir
 
-//To use client either open up a browser and type http://localhost:8080/add/5/10
-//or type curl http://localhost:8080/add/5/10 in terminal
-//add being the thing we wanna do (also supports multiply)
-//5 and 10 being the numbers you wanna add. (You ar free to change these)
+//Run Server with "go run main.go" in the client dir
+//Run Client with "go run main.go" in the client dir
 
+//To use client either open up a browser and type http://localhost:8080/GetCourses/1
+//or type curl http://localhost:8080/GetCourses/1 in terminal
+//GetCourse being the endpoint
+//1 being the course we wanna get (also supports 2 and 3)
 
 import (
 	"context"
@@ -16,7 +17,19 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type server struct {}
+type server struct{}
+
+func WhichCourse(id int64) string {
+	if id == 1 {
+		return "ID: \"01\", Name: \"BDSA\", Teacher: \"Alice\", Rating: 7, Workload: \"5 exercises\""
+	} else if id == 2 {
+		return "ID: \"02\", Name: \"DISYS\", Teacher: \"Bob\", Rating: 8, Workload: \"4 projects\""
+	} else if id == 3 {
+		return "ID: \"03\", Name: \"IDBS\", Teacher: \"Carl\", Rating: 6, Workload: \"3 assignments\""
+
+	}
+	return "no course with this id"
+}
 
 func main() {
 	listener, err := net.Listen("tcp", ":4040")
@@ -33,18 +46,9 @@ func main() {
 	}
 }
 
-func (s *server) Add(ctx context.Context, req *proto.Request) (*proto.Response, error) {
-	a, b := req.GetA(), req.GetB()
+func (s *server) GetCourses(ctx context.Context, req *proto.Request) (*proto.Response, error) {
+	a := req.GetA()
 
-	result := a + b
-
-	return &proto.Response{Result: result}, nil
-}
-
-func (s *server) Multiply(ctx context.Context, req *proto.Request) (*proto.Response, error) {
-	a, b := req.GetA(), req.GetB()
-
-	result := a * b
-
-	return &proto.Response{Result: result}, nil
+	result := WhichCourse(a)
+	return &proto.Response{Result: string(result)}, nil
 }
